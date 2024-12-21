@@ -1,7 +1,0 @@
-ignore_modules:
-  - settings.py
-  - apps.py
-  - urls.py
-  - wsgi.py
-  - asgi.py
-  - core.migrations
