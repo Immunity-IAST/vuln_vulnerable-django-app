@@ -3,11 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: iast
+      target: mutant
       args:
-        IMMUNITY_HOST: 127.0.0.1
-        IMMUNITY_PORT: 81
-        IMMUNITY_PROJECT: test12
+        IMMUNITY_HOST: "127.0.0.1"
+        IMMUNITY_PORT: "81"
+        IMMUNITY_PROJECT: "django_vulnapp1"
     network_mode: "host"
     ports:
       - 8000:8000
