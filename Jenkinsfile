@@ -43,7 +43,7 @@ pipeline {
                         --build-arg IMMUNITY_HOST=${IMMUNITY_HOST} \
                         --build-arg IMMUNITY_PORT=${IMMUNITY_PORT} \
                         --build-arg IMMUNITY_PROJECT=${IMMUNITY_PROJECT} \
-                        --target mutant \
+                        --target iast \
                         ."
             }
         }
