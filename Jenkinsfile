@@ -36,7 +36,7 @@ pipeline {
                 archiveArtifacts artifacts: 'bandit_sast.xml', allowEmptyArchive: true, fingerprint: true
             }
         }
-        stage {
+        stage ("Build application") {
             steps {
                 sh "docker build \
                         --tag python_vulnapp \
