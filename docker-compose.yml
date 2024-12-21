@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: iast
+      args:
+        IMMUNITY_HOST: 127.0.0.1
+        IMMUNITY_PORT: 81
+        IMMUNITY_PROJECT: test12
+    network_mode: "host"
+    ports:
+      - 8000:8000
+    restart: always
