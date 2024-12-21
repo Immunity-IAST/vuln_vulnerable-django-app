@@ -31,11 +31,3 @@ RUN pip install requests immunity-iast==0.2.8 --upgrade
 RUN python3 -m immunity_agent $IMMUNITY_HOST $IMMUNITY_PORT $IMMUNITY_PROJECT
 
 CMD [ "python3", "manage.py", "runserver", "0.0.0.0:8000" ]
-
-FROM iast AS mutant
-
-RUN pip install mutmut
-
-RUN mutmut --help || false
-
-CMD [ "python3", "manage.py", "runserver", "0.0.0.0:8000" ]

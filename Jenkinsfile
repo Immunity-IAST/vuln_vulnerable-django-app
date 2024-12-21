@@ -1,9 +1,18 @@
 pipeline {
     agent any
+    environment {
+        IMMUNITY_HOST = '127.0.0.1'
+        IMMUNITY_PORT = '81'
+        IMMUNITY_PROJECT = 'django_vulnapp1'
+        FARADAY_URL = credentials('FARADAY_URL')
+        FARADAY_LOGIN = credentials('FARADAY_LOGIN')
+        FARADAY_PASSWORD = credentials('FARADAY_PASSWORD')
+        FARADAY_WORKSPACE = "django_vulnapp"
+    }
     stages {
         stage('Checkout') {
             steps {
-                sh 'git clone https://github.com/jinghao1/DockerVulspace || true'
+                checkout scm
             }
         }
         stage('SAST (Bandit)') {
@@ -18,7 +27,7 @@ pipeline {
                 sh 'pip install bandit'
                 sh 'ls -la'
 
-                echo 'Runnig SAST...'
+                echo 'Running SAST...'
                 sh 'python3 -m bandit -r . -f xml -o bandit_sast.xml || true'
 
                 echo 'Here is the report...'
@@ -27,10 +36,21 @@ pipeline {
                 archiveArtifacts artifacts: 'bandit_sast.xml', allowEmptyArchive: true, fingerprint: true
             }
         }
+        stage {
+            steps {
+                sh "docker build \
+                        --tag python_vulnapp \
+                        --build-arg IMMUNITY_HOST=${IMMUNITY_HOST} \
+                        --build-arg IMMUNITY_PORT=${IMMUNITY_PORT} \
+                        --build-arg IMMUNITY_PROJECT=${IMMUNITY_PROJECT} \
+                        --target mutant \
+                        ."
+            }
+        }
         stage('Run application') {
             steps {
                 sh 'docker network create dast_scan || true'
-                sh 'docker run -d --name test --network dast_scan nginx'
+                sh 'docker run -d --name test --network dast_scan python_vulnapp'
             }
         }
         stage('DAST (OWASP ZAP)') {
@@ -47,7 +67,7 @@ pipeline {
                 sh 'cp -r * /zap/wrk/'
 
                 echo 'Runnig DAST...'
-                sh 'zap-baseline.py -t http://test -x zap_dast.xml || echo 0'
+                sh 'zap-baseline.py -t http://test:8000 -x zap_dast.xml || echo 0'
                 sh 'cp /zap/wrk/zap_dast.xml .'
 
                 echo 'Here is the report...'
@@ -59,6 +79,7 @@ pipeline {
         stage('Stop application') {
             steps {
                 sh 'docker stop test && docker rm test'
+                sh 'docker rmi python_vulnapp'
             }
         }
         stage('Upload reports') {
@@ -71,9 +92,9 @@ pipeline {
                 }
                 steps {
                     sh 'pip install faraday-cli'
-                    sh 'faraday-cli auth -f http://faraday.devops.local -i -u faraday -p faraday_test'
-                    sh 'faraday-cli tool report bandit_sast.xml -w test_workspace'
-                    sh 'faraday-cli tool report zap_dast.xml -w test_workspace'
+                    sh "faraday-cli auth -f ${FARADAY_URL} -i -u ${FARADAY_LOGIN} -p ${FARADAY_PASSWORD}"
+                    sh "faraday-cli tool report bandit_sast.xml -w ${FARADAY_WORKSPACE}"
+                    sh "faraday-cli tool report zap_dast.xml -w ${FARADAY_WORKSPACE}"
                 }
         }
         stage('Crowler') {
