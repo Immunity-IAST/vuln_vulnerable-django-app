@@ -47,7 +47,7 @@ pipeline {
                 sh 'pip install semgrep'
 
                 echo 'Running SAST...'
-                sh 'semgrep --json . > semgrep_sast.json'
+                sh 'semgrep --json ./vda/ > semgrep_sast.json'
 
                 echo 'Here is the report...'
                 sh 'cat semgrep_sast.json || true'
@@ -105,6 +105,7 @@ pipeline {
                 }
             }
             steps {
+                sh 'apt update && apt install nikto -y'
                 sh 'nikto -h http://test:8000 -Format XML -output nikto_dast.xml'
 
                 archiveArtifacts artifacts: 'nikto_dast.xml', allowEmptyArchive: true, fingerprint: true
@@ -119,6 +120,7 @@ pipeline {
                 }
             }
             steps {
+                sh 'apt update && apt install arachni -y'
                 sh 'arachni --report=xml:arachni_dast.xml http://test:8000'
 
                 archiveArtifacts artifacts: 'arachni_dast.xml', allowEmptyArchive: true, fingerprint: true
@@ -184,7 +186,7 @@ pipeline {
             sh 'docker stop test || true'
             sh 'docker rm test || true'
             sh 'docker rmi python_vulnapp || true'
-            sh 'rm *.xml || true'
+            cleanWs()
         }
     }
 }
