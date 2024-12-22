@@ -126,8 +126,6 @@ pipeline {
                 }
             }
             steps {
-                sh 'add-apt-repository ppa:arachni-team/ppa'
-                sh 'apt update && apt install arachni -y'
                 sh 'arachni --report=xml:arachni_dast.xml http://test:8000 || true'
 
                 archiveArtifacts artifacts: 'arachni_dast.xml', allowEmptyArchive: true, fingerprint: true
