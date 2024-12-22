@@ -3,7 +3,7 @@ pipeline {
     environment {
         IMMUNITY_HOST = 'immunity'
         IMMUNITY_PORT = '8000'
-        IMMUNITY_PROJECT = 'django_vulnapp1'
+        IMMUNITY_PROJECT = 'test'
         FARADAY_URL = credentials('FARADAY_URL')
         FARADAY_LOGIN = credentials('FARADAY_LOGIN')
         FARADAY_PASSWORD = credentials('FARADAY_PASSWORD')
