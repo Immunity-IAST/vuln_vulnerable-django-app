@@ -50,7 +50,8 @@ pipeline {
         stage('Run application') {
             steps {
                 sh 'docker network create dast_scan || true'
-                sh 'docker run -d --name test --network dast_scan --network iast_global python_vulnapp'
+                sh 'docker run -d --name test --network dast_scan python_vulnapp'
+                sh 'docker network connect iast_global test'
             }
         }
         stage('DAST (OWASP ZAP)') {
