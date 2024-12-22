@@ -1,6 +1,7 @@
 pipeline {
     agent any
     environment {
+        DIRECTORY = './vda/'
         IMMUNITY_HOST = 'immunity'
         IMMUNITY_PORT = '8000'
         IMMUNITY_PROJECT = 'test'
@@ -27,7 +28,7 @@ pipeline {
                 sh 'pip install bandit'
 
                 echo 'Running SAST...'
-                sh 'python3 -m bandit -r . -f xml -o bandit_sast.xml || true'
+                sh "python3 -m bandit -r ${DIRECTORY} -f xml -o bandit_sast.xml || true"
 
                 echo 'Here is the report...'
                 sh 'cat bandit_sast.xml || true'
@@ -47,7 +48,7 @@ pipeline {
                 sh 'pip install semgrep'
 
                 echo 'Running SAST...'
-                sh 'semgrep --json ./vda/ > semgrep_sast.json'
+                sh "semgrep --json ${DIRECTORY} > semgrep_sast.json"
 
                 echo 'Here is the report...'
                 sh 'cat semgrep_sast.json || true'
@@ -87,7 +88,7 @@ pipeline {
                 sh 'cp -r * /zap/wrk/'
 
                 echo 'Runnig DAST...'
-                sh 'zap-baseline.py -t http://test:8000 -x zap_dast.xml || echo 0'
+                sh 'zap-baseline.py -t http://test:8000 -x zap_dast.xml || true'
                 sh 'cp /zap/wrk/zap_dast.xml .'
 
                 echo 'Here is the report...'
@@ -106,7 +107,7 @@ pipeline {
             }
             steps {
                 sh 'apt update && apt install nikto -y'
-                sh 'nikto -h http://test:8000 -Format XML -output nikto_dast.xml'
+                sh 'nikto -h http://test:8000 -Format XML -output nikto_dast.xml || true'
 
                 archiveArtifacts artifacts: 'nikto_dast.xml', allowEmptyArchive: true, fingerprint: true
             }
@@ -121,7 +122,7 @@ pipeline {
             }
             steps {
                 sh 'apt update && apt install arachni -y'
-                sh 'arachni --report=xml:arachni_dast.xml http://test:8000'
+                sh 'arachni --report=xml:arachni_dast.xml http://test:8000 || true'
 
                 archiveArtifacts artifacts: 'arachni_dast.xml', allowEmptyArchive: true, fingerprint: true
             }
@@ -149,6 +150,7 @@ pipeline {
                 sh 'pip install faraday-cli'
                 sh "faraday-cli auth -f ${FARADAY_URL} -i -u ${FARADAY_LOGIN} -p ${FARADAY_PASSWORD}"
                 sh "faraday-cli tool report bandit_sast.xml -w ${FARADAY_WORKSPACE}"
+                sh "faraday-cli tool report semgrep_sast.json -w ${FARADAY_WORKSPACE}"
                 sh "faraday-cli tool report zap_dast.xml -w ${FARADAY_WORKSPACE}"
                 sh "faraday-cli tool report nikto_dast.xml -w ${FARADAY_WORKSPACE}"
                 sh "faraday-cli tool report arachni_dast.xml -w ${FARADAY_WORKSPACE}"
