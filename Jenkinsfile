@@ -25,7 +25,6 @@ pipeline {
             steps {
                 echo 'Preparing environment...'
                 sh 'pip install bandit'
-                sh 'ls -la'
 
                 echo 'Running SAST...'
                 sh 'python3 -m bandit -r . -f xml -o bandit_sast.xml || true'
@@ -34,6 +33,26 @@ pipeline {
                 sh 'cat bandit_sast.xml || true'
 
                 archiveArtifacts artifacts: 'bandit_sast.xml', allowEmptyArchive: true, fingerprint: true
+            }
+        }
+        stage('SAST (Semgrep)') {
+            agent {
+                docker {
+                    image 'python:3.10'
+                    reuseNode true
+                }
+            }
+            steps {
+                echo 'Preparing environment...'
+                sh 'pip install semgrep'
+
+                echo 'Running SAST...'
+                sh 'semgrep --json . > semgrep_sast.json'
+
+                echo 'Here is the report...'
+                sh 'cat semgrep_sast.json || true'
+
+                archiveArtifacts artifacts: 'semgrep_sast.json', allowEmptyArchive: true, fingerprint: true
             }
         }
         stage ("Build application") {
@@ -77,6 +96,34 @@ pipeline {
                 archiveArtifacts artifacts: 'zap_dast.xml', allowEmptyArchive: true, fingerprint: true
             }
         }
+        stage('DAST (Nikto)') {
+            agent {
+                docker {
+                    image 'kalilinux/kali-rolling'
+                    args '--network dast_scan'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'nikto -h http://test:8000 -Format XML -output nikto_dast.xml'
+
+                archiveArtifacts artifacts: 'nikto_dast.xml', allowEmptyArchive: true, fingerprint: true
+            }
+        }
+        stage('DAST (Arachni)') {
+            agent {
+                docker {
+                    image 'kalilinux/kali-rolling'
+                    args '--network dast_scan'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'arachni --report=xml:arachni_dast.xml http://test:8000'
+
+                archiveArtifacts artifacts: 'arachni_dast.xml', allowEmptyArchive: true, fingerprint: true
+            }
+        }
         stage('Container logs') {
             steps {
                 sh 'docker logs test | head -n 100'
@@ -101,6 +148,8 @@ pipeline {
                 sh "faraday-cli auth -f ${FARADAY_URL} -i -u ${FARADAY_LOGIN} -p ${FARADAY_PASSWORD}"
                 sh "faraday-cli tool report bandit_sast.xml -w ${FARADAY_WORKSPACE}"
                 sh "faraday-cli tool report zap_dast.xml -w ${FARADAY_WORKSPACE}"
+                sh "faraday-cli tool report nikto_dast.xml -w ${FARADAY_WORKSPACE}"
+                sh "faraday-cli tool report arachni_dast.xml -w ${FARADAY_WORKSPACE}"
             }
         }
 //         stage('Crowler') {
@@ -135,6 +184,7 @@ pipeline {
             sh 'docker stop test || true'
             sh 'docker rm test || true'
             sh 'docker rmi python_vulnapp || true'
+            sh 'rm *.xml || true'
         }
     }
 }
