@@ -79,9 +79,7 @@ pipeline {
         }
         stage('Container logs') {
             steps {
-                sh 'docker logs test > test_app_logs.txt'
-
-                archiveArtifacts artifacts: 'test_app_logs.txt', allowEmptyArchive: true, fingerprint: true
+                sh 'docker logs test | head -n 100'
             }
         }
         stage('Stop application') {
