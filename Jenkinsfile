@@ -79,7 +79,9 @@ pipeline {
         }
         stage('Container logs') {
             steps {
-                sh 'docker logs test'
+                sh 'docker logs test > test_app_logs.txt'
+
+                archiveArtifacts artifacts: 'test_app_logs.txt', allowEmptyArchive: true, fingerprint: true
             }
         }
         stage('Stop application') {
@@ -89,46 +91,46 @@ pipeline {
             }
         }
         stage('Upload reports') {
-                agent {
-                    docker {
-                        image 'python:3.10'
-                        args '--network host'
-                        reuseNode true
-                    }
+            agent {
+                docker {
+                    image 'python:3.10'
+                    args '--network host'
+                    reuseNode true
                 }
-                steps {
-                    sh 'pip install faraday-cli'
-                    sh "faraday-cli auth -f ${FARADAY_URL} -i -u ${FARADAY_LOGIN} -p ${FARADAY_PASSWORD}"
-                    sh "faraday-cli tool report bandit_sast.xml -w ${FARADAY_WORKSPACE}"
-                    sh "faraday-cli tool report zap_dast.xml -w ${FARADAY_WORKSPACE}"
-                }
+            }
+            steps {
+                sh 'pip install faraday-cli'
+                sh "faraday-cli auth -f ${FARADAY_URL} -i -u ${FARADAY_LOGIN} -p ${FARADAY_PASSWORD}"
+                sh "faraday-cli tool report bandit_sast.xml -w ${FARADAY_WORKSPACE}"
+                sh "faraday-cli tool report zap_dast.xml -w ${FARADAY_WORKSPACE}"
+            }
         }
-        stage('Crowler') {
-                agent {
-                    docker {
-                        image 'python:3.10'
-                        args '--network host'
-                        reuseNode true
-                    }
-                }
-                steps {
-                    sh 'apt install wget'
-                    sh 'wget -r -np -k http://gitea.devops.local || true'
-                }
-        }
-        stage('Selenium') {
-                agent {
-                    docker {
-                        image 'node:18-alpine'
-                        args '--network host'
-                        reuseNode true
-                    }
-                }
-                steps {
-                    sh 'npm install -g selenium-side-runner'
-                    sh 'selenium-side-runner'
-                }
-        }
+//         stage('Crowler') {
+//             agent {
+//                 docker {
+//                     image 'python:3.10'
+//                     args '--network host'
+//                     reuseNode true
+//                 }
+//             }
+//             steps {
+//                 sh 'apt install wget'
+//                 sh 'wget -r -np -k http://gitea.devops.local || true'
+//             }
+//         }
+//         stage('Selenium') {
+//             agent {
+//                 docker {
+//                     image 'node:18-alpine'
+//                     args '--network host'
+//                     reuseNode true
+//                 }
+//             }
+//             steps {
+//                 sh 'npm install -g selenium-side-runner'
+//                 sh 'selenium-side-runner'
+//             }
+//         }
     }
     post {
         always {
