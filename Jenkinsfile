@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        IMMUNITY_HOST = '127.0.0.1'
-        IMMUNITY_PORT = '81'
+        IMMUNITY_HOST = 'immunity'
+        IMMUNITY_PORT = '8000'
         IMMUNITY_PROJECT = 'django_vulnapp1'
         FARADAY_URL = credentials('FARADAY_URL')
         FARADAY_LOGIN = credentials('FARADAY_LOGIN')
@@ -50,7 +50,7 @@ pipeline {
         stage('Run application') {
             steps {
                 sh 'docker network create dast_scan || true'
-                sh 'docker run -d --name test --network dast_scan python_vulnapp'
+                sh 'docker run -d --name test --network dast_scan --network iast_global python_vulnapp'
             }
         }
         stage('DAST (OWASP ZAP)') {
@@ -128,6 +128,7 @@ pipeline {
         always {
             sh 'docker stop test || true'
             sh 'docker rm test || true'
+            sh 'docker rmi python_vulnapp || true'
         }
     }
 }
