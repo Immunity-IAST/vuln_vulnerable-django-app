@@ -77,6 +77,11 @@ pipeline {
                 archiveArtifacts artifacts: 'zap_dast.xml', allowEmptyArchive: true, fingerprint: true
             }
         }
+        stage('Container logs') {
+            steps {
+                sh 'docker logs test'
+            }
+        }
         stage('Stop application') {
             steps {
                 sh 'docker stop test && docker rm test'
