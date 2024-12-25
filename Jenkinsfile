@@ -60,7 +60,7 @@ pipeline {
         stage ("Build application") {
             steps {
                 sh "docker build \
-                        --tag python_vulnapp \
+                        --tag test_vuln_django \
                         --build-arg IMMUNITY_HOST=${IMMUNITY_HOST} \
                         --build-arg IMMUNITY_PORT=${IMMUNITY_PORT} \
                         --build-arg IMMUNITY_PROJECT=${IMMUNITY_PROJECT} \
@@ -71,7 +71,7 @@ pipeline {
         stage('Run application') {
             steps {
                 sh 'docker network create dast_scan || true'
-                sh 'docker run -d --name test_vuln_django --network dast_scan python_vulnapp'
+                sh 'docker run -d --name test_vuln_django --network dast_scan test_vuln_django'
                 sh 'docker network connect iast_global test_vuln_django'
             }
         }
@@ -126,7 +126,7 @@ pipeline {
         stage('Stop application') {
             steps {
                 sh 'docker stop test_vuln_django && docker rm test_vuln_django'
-                sh 'docker rmi python_vulnapp'
+                sh 'docker rmi test_vuln_django'
             }
         }
         stage('Upload reports') {
@@ -165,7 +165,7 @@ pipeline {
         always {
             sh 'docker stop test_vuln_django || true'
             sh 'docker rm test_vuln_django || true'
-            sh 'docker rmi python_vulnapp || true'
+            sh 'docker rmi test_vuln_django || true'
             cleanWs()
         }
     }
