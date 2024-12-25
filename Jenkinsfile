@@ -9,7 +9,7 @@ pipeline {
         FARADAY_URL = credentials('FARADAY_URL')
         FARADAY_LOGIN = credentials('FARADAY_LOGIN')
         FARADAY_PASSWORD = credentials('FARADAY_PASSWORD')
-        FARADAY_WORKSPACE = "django_vulnapp"
+        FARADAY_WORKSPACE = "vulnerable_django"
     }
     stages {
         stage('Checkout') {
