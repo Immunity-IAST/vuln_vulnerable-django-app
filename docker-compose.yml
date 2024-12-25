@@ -10,4 +10,4 @@ services:
         IMMUNITY_PROJECT: "vuln_vulnerable-django-app"
     network_mode: "host"
     ports:
-      - 1234:8000
+      - 8000:8000
