@@ -7,7 +7,7 @@ services:
       args:
         IMMUNITY_HOST: "127.0.0.1"
         IMMUNITY_PORT: "81"
-        IMMUNITY_PROJECT: "django_vulnapp1"
+        IMMUNITY_PROJECT: "test"
     network_mode: "host"
     ports:
       - 8000:8000

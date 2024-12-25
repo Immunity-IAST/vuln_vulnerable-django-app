@@ -117,20 +117,6 @@ pipeline {
                 archiveArtifacts artifacts: 'nikto_dast.xml', allowEmptyArchive: true, fingerprint: true
             }
         }
-        stage('DAST (Arachni)') {
-            agent {
-                docker {
-                    image 'kalilinux/kali-rolling'
-                    args '--network dast_scan'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh 'arachni --report=xml:arachni_dast.xml http://test:8000 || true'
-
-                archiveArtifacts artifacts: 'arachni_dast.xml', allowEmptyArchive: true, fingerprint: true
-            }
-        }
         stage('Container logs') {
             steps {
                 sh 'docker logs test | head -n 100'
@@ -158,22 +144,8 @@ pipeline {
                 sh "faraday-cli tool report zap_dast_baseline.xml -w ${FARADAY_WORKSPACE}"
                 sh "faraday-cli tool report zap_dast_full.xml -w ${FARADAY_WORKSPACE}"
                 sh "faraday-cli tool report nikto_dast.xml -w ${FARADAY_WORKSPACE}"
-                sh "faraday-cli tool report arachni_dast.xml -w ${FARADAY_WORKSPACE}"
             }
         }
-//         stage('Crowler') {
-//             agent {
-//                 docker {
-//                     image 'python:3.10'
-//                     args '--network host'
-//                     reuseNode true
-//                 }
-//             }
-//             steps {
-//                 sh 'apt install wget'
-//                 sh 'wget -r -np -k http://gitea.devops.local || true'
-//             }
-//         }
 //         stage('Selenium') {
 //             agent {
 //                 docker {
