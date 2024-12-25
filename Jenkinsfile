@@ -89,11 +89,11 @@ pipeline {
                 sh 'cp -r * /zap/wrk/'
 
                 echo 'Running DAST...'
-                sh "zap-baseline.py -t http://test_vuln_django:${DIRECTORY} -x zap_dast_baseline.xml || true"
+                sh "zap-baseline.py -t http://test_vuln_django:${APP_PORT} -x zap_dast_baseline.xml || true"
                 sh 'cp /zap/wrk/zap_dast_baseline.xml .'
 
                 echo 'Running DAST...'
-                sh "zap-full-scan.py -t http://test_vuln_django:${DIRECTORY} -x zap_dast_full.xml || true"
+                sh "zap-full-scan.py -t http://test_vuln_django:${APP_PORT} -x zap_dast_full.xml || true"
                 sh 'cp /zap/wrk/zap_dast_full.xml .'
 
                 echo 'Here is the report...'
@@ -113,7 +113,7 @@ pipeline {
             }
             steps {
                 sh 'apt update && apt install nikto -y'
-                sh "nikto -h http://test_vuln_django:${DIRECTORY} -Format XML -output nikto_dast.xml || true"
+                sh "nikto -h http://test_vuln_django:${APP_PORT} -Format XML -output nikto_dast.xml || true"
 
                 archiveArtifacts artifacts: 'nikto_dast.xml', allowEmptyArchive: true, fingerprint: true
             }
