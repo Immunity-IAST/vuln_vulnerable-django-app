@@ -2,8 +2,9 @@ pipeline {
     agent any
     environment {
         DIRECTORY = './vda/'
+        APP_PORT = '8000'
         IMMUNITY_HOST = 'immunity'
-        IMMUNITY_PORT = '8000'
+        IMMUNITY_PORT = '81'
         IMMUNITY_PROJECT = 'vuln_vulnerable-django-app'
         FARADAY_URL = credentials('FARADAY_URL')
         FARADAY_LOGIN = credentials('FARADAY_LOGIN')
@@ -88,11 +89,11 @@ pipeline {
                 sh 'cp -r * /zap/wrk/'
 
                 echo 'Running DAST...'
-                sh 'zap-baseline.py -t http://test:8000 -x zap_dast_baseline.xml || true'
+                sh "zap-baseline.py -t http://test:${DIRECTORY} -x zap_dast_baseline.xml || true"
                 sh 'cp /zap/wrk/zap_dast_baseline.xml .'
 
                 echo 'Running DAST...'
-                sh 'zap-full-scan.py -t http://test:8000 -x zap_dast_full.xml || true'
+                sh "zap-full-scan.py -t http://test:${DIRECTORY} -x zap_dast_full.xml || true"
                 sh 'cp /zap/wrk/zap_dast_full.xml .'
 
                 echo 'Here is the report...'
@@ -112,7 +113,7 @@ pipeline {
             }
             steps {
                 sh 'apt update && apt install nikto -y'
-                sh 'nikto -h http://test:8000 -Format XML -output nikto_dast.xml || true'
+                sh "nikto -h http://test:${DIRECTORY} -Format XML -output nikto_dast.xml || true"
 
                 archiveArtifacts artifacts: 'nikto_dast.xml', allowEmptyArchive: true, fingerprint: true
             }
