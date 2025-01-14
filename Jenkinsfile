@@ -6,9 +6,9 @@ pipeline {
         IMMUNITY_HOST = 'immunity'
         IMMUNITY_PORT = '8000'
         IMMUNITY_PROJECT = 'vuln_vulnerable-django-app'
-        FARADAY_URL = credentials('FARADAY_URL')
-        FARADAY_LOGIN = credentials('FARADAY_LOGIN')
-        FARADAY_PASSWORD = credentials('FARADAY_PASSWORD')
+//         FARADAY_URL = credentials('FARADAY_URL')
+//         FARADAY_LOGIN = credentials('FARADAY_LOGIN')
+//         FARADAY_PASSWORD = credentials('FARADAY_PASSWORD')
         FARADAY_WORKSPACE = "vulnerable_django"
     }
     stages {
