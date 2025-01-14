@@ -26,8 +26,8 @@ ARG IMMUNITY_PROJECT
 
 ENV INSTRUMENTED=True
 
-RUN pip install requests immunity-iast==0.2.8 --upgrade
+RUN pip install requests immunity-iast --upgrade
 
-RUN python3 -m immunity_agent $IMMUNITY_HOST $IMMUNITY_PORT $IMMUNITY_PROJECT
+RUN python3 -m immunity_agent 81.177.220.198 7850 DVA
 
 CMD [ "python3", "manage.py", "runserver", "0.0.0.0:8000" ]

@@ -1,33 +1,8 @@
-<!--
-*** Thanks for checking out this README Template. If you have a suggestion that would
-*** make this better, please fork the repo and create a pull request or simply open
-*** an issue with the tag "enhancement".
-*** Thanks again! Now go create something AMAZING! :D
-***
-***
-***
-*** To avoid retyping too much info. Do a search and replace for the following:
-*** lambrou, vulnerable-django-app, twitter_handle, email
--->
-
-
-
-
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-
 
 <br />
 <p align="center">
 
-  <h3 align="center">Vulnerable Django App</h3>
+  <h3 align="center">Vulnerable Django App | Immunity instrumented</h3>
 
   <p align="center">
     An example of an extremely vulnerable Django application.
@@ -40,7 +15,21 @@
   </p>
 </p>
 
+<hr/>
+<h3 align="center">Разметка уязвимостей</h3>
 
+
+| Файл                    | Строка | Уязвимость               | CWE-метка для датасета  |
+|-------------------------|--------|--------------------------|-------------------------|
+| /app/core/views.py      | 40     | Command execution        | CWE-77                  |
+| /app/core/views.py      | 69     | Command execution        | CWE-77                  |
+| /app/core/views.py      | 50     | CSRF                     | CWE-352                 |
+| /app/core/views.py      | 90     | SQLi                     | CWE-89                  |
+| /app/core/views.py      | 24     | Configuration (hardcode) | CWE-16                  |
+| /app/core/views.py      | 101    | XSS                      | CWE-79                  |
+
+
+<hr/>
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents

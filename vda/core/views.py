@@ -37,7 +37,7 @@ def testconn(request):
     context = { "navinfo": config['DEFAULT']['CommandExec'] }
     if request.method == 'POST':
         webAddr = request.POST.get('serveraddr')
-        procOut = subprocess.check_output('powershell.exe Test-Connection ' + webAddr, shell=True)
+        procOut = subprocess.check_output('ping ' + webAddr, shell=True)
         context = { 
             "stdout": procOut.decode(),
             "navinfo": config['DEFAULT']['CommandExec']
