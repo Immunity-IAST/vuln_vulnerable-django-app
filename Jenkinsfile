@@ -61,10 +61,7 @@ pipeline {
             steps {
                 sh "docker build \
                         --tag test_vuln_django \
-                        --build-arg IMMUNITY_HOST=${IMMUNITY_HOST} \
-                        --build-arg IMMUNITY_PORT=${IMMUNITY_PORT} \
-                        --build-arg IMMUNITY_PROJECT=${IMMUNITY_PROJECT} \
-                        --target iast \
+                        --target base \
                         ."
             }
         }
@@ -129,6 +126,44 @@ pipeline {
                 sh 'docker rmi test_vuln_django'
             }
         }
+        stage ("Build instrumented application") {
+            steps {
+                sh "docker build \
+                        --tag iast_vuln_django \
+                        --build-arg IMMUNITY_HOST=${IMMUNITY_HOST} \
+                        --build-arg IMMUNITY_PORT=${IMMUNITY_PORT} \
+                        --build-arg IMMUNITY_PROJECT=${IMMUNITY_PROJECT} \
+                        --target iast \
+                        ."
+            }
+        }
+        stage('Run instrumented application') {
+            steps {
+                sh 'docker run -d --name iast_vuln_django --network dast_scan test_vuln_django'
+                sh 'docker network connect iast_global test_vuln_django'
+            }
+        }
+        stage('PING IT') {
+            agent {
+                docker {
+                    image 'kalilinux/kali-rolling'
+                    args '--network dast_scan'
+                    reuseNode true
+                }
+            }
+            steps {
+                //sh 'apt update && apt install nikto -y'
+                //sh "nikto -h http://test_vuln_django:${APP_PORT} -Format XML -output nikto_dast.xml || true"
+                //archiveArtifacts artifacts: 'nikto_dast.xml', allowEmptyArchive: true, fingerprint: true
+                sh "curl http://iast_vuln_django/ || true"
+            }
+        }
+        stage('Stop application') {
+            steps {
+                sh 'docker stop iast_vuln_django && docker rm iast_vuln_django'
+                sh 'docker rmi iast_vuln_django'
+            }
+        }
         stage('Upload reports') {
             agent {
                 docker {
@@ -153,6 +188,9 @@ pipeline {
             sh 'docker stop test_vuln_django || true'
             sh 'docker rm test_vuln_django || true'
             sh 'docker rmi test_vuln_django || true'
+            sh 'docker stop iast_vuln_django || true'
+            sh 'docker rm iast_vuln_django || true'
+            sh 'docker rmi iast_vuln_django || true'
             cleanWs()
         }
     }
