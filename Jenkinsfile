@@ -158,7 +158,7 @@ pipeline {
                 sh "curl http://iast_vuln_django/ || true"
             }
         }
-        stage('Stop application') {
+        stage('Stop instrumented application') {
             steps {
                 sh 'docker stop iast_vuln_django && docker rm iast_vuln_django'
                 sh 'docker rmi iast_vuln_django'
