@@ -13,12 +13,12 @@ config = configparser.ConfigParser()
 config.read('core/static/core/navinfo.ini')
 
 def index(request):
-    context = { "navinfo": config['DEFAULT']['Index'] }
+    context = { "navinfo": config['DEFAULT']['Index'] } # Clean
     return render(request, 'core/index.html', context)
 
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = UserCreationForm(request.POST) # Clean
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
@@ -31,12 +31,12 @@ def signup(request):
     return render(request, 'registration/signup.html', {"form":form})
 
 def profile(request):
-    return render(request, 'user/profile.html', None)
+    return render(request, 'user/profile.html', None) # Clean
 
 def testconn(request):
     context = { "navinfo": config['DEFAULT']['CommandExec'] }
     if request.method == 'POST':
-        webAddr = request.POST.get('serveraddr')
+        webAddr = request.POST.get('serveraddr') # Command
         procOut = subprocess.check_output('ping ' + webAddr, shell=True)
         context = { 
             "stdout": procOut.decode(),
@@ -49,7 +49,7 @@ def testconn(request):
 def changepass(request):
     context = { "navinfo": config['DEFAULT']['CSRF'] }
     if request.method == 'POST':
-        password1 = request.POST.get('newpass1')
+        password1 = request.POST.get('newpass1') # CSRF
         password2 = request.POST.get('newpass2')
         if (password1 == password2):
             context = { "msg": 'Your new password is ' + password1,
@@ -64,7 +64,7 @@ def changepass(request):
 
 def filerunner(request):
     if request.method == 'GET':
-        file = request.GET.get('file')
+        file = request.GET.get('file') # Command
         if (file):
             procOut = subprocess.check_output(['python', file], shell=True)
             context = { 
@@ -86,7 +86,7 @@ def filerunner(request):
 def userlookup(request):
     context = { "navinfo": config['DEFAULT']['SQLi'] }
     if request.method == 'POST':
-        uname = request.POST.get('uname')
+        uname = request.POST.get('uname') # SQLi
         query = User.objects.raw('SELECT * from "auth_user" WHERE "auth_user"."username" = "' + uname + '"')
         context = { "stdout": query,
                     "navinfo": config['DEFAULT']['SQLi']
@@ -97,7 +97,7 @@ def userlookup(request):
 def guestbook(request):
     
     if request.method == 'POST':
-        uname = request.POST.get('uname')
+        uname = request.POST.get('uname') # XSS
         umsg = request.POST.get('umsg')
         gbook = Guestbook(first_name=uname, user_message=umsg, pub_date=timezone.now())
         gbook.save()

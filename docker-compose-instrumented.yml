@@ -3,11 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: base
+      target: iast
       args:
         IMMUNITY_HOST: "81.177.220.198"
         IMMUNITY_PORT: "7850"
-        IMMUNITY_PROJECT: " DVA" #"vuln_vulnerable-django-app"
+        IMMUNITY_PROJECT: " DVA"
     network_mode: "host"
     ports:
       - 8000:8000

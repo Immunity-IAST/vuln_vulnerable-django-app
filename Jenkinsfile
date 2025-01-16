@@ -6,10 +6,10 @@ pipeline {
         IMMUNITY_HOST = 'immunity'
         IMMUNITY_PORT = '8000'
         IMMUNITY_PROJECT = 'vuln_vulnerable-django-app'
-//         FARADAY_URL = credentials('FARADAY_URL')
-//         FARADAY_LOGIN = credentials('FARADAY_LOGIN')
-//         FARADAY_PASSWORD = credentials('FARADAY_PASSWORD')
-        FARADAY_WORKSPACE = "vulnerable_django"
+        FARADAY_URL = credentials('FARADAY_URL')
+        FARADAY_LOGIN = credentials('FARADAY_LOGIN')
+        FARADAY_PASSWORD = credentials('FARADAY_PASSWORD')
+        FARADAY_WORKSPACE = "vulnerable-django-app"
     }
     stages {
         stage('Checkout') {
@@ -139,27 +139,14 @@ pipeline {
             }
             steps {
                 sh 'pip install faraday-cli'
-//                 sh "faraday-cli auth -f ${FARADAY_URL} -i -u ${FARADAY_LOGIN} -p ${FARADAY_PASSWORD}"
-//                 sh "faraday-cli tool report bandit_sast.xml -w ${FARADAY_WORKSPACE}"
-//                 sh "faraday-cli tool report semgrep_sast.json -w ${FARADAY_WORKSPACE}"
-//                 sh "faraday-cli tool report zap_dast_baseline.xml -w ${FARADAY_WORKSPACE}"
-//                 sh "faraday-cli tool report zap_dast_full.xml -w ${FARADAY_WORKSPACE}"
-//                 sh "faraday-cli tool report nikto_dast.xml -w ${FARADAY_WORKSPACE}"
+                sh "faraday-cli auth -f ${FARADAY_URL} -i -u ${FARADAY_LOGIN} -p ${FARADAY_PASSWORD}"
+                sh "faraday-cli tool report bandit_sast.xml -w ${FARADAY_WORKSPACE}"
+                sh "faraday-cli tool report semgrep_sast.json -w ${FARADAY_WORKSPACE}"
+                sh "faraday-cli tool report zap_dast_baseline.xml -w ${FARADAY_WORKSPACE}"
+                sh "faraday-cli tool report zap_dast_full.xml -w ${FARADAY_WORKSPACE}"
+                sh "faraday-cli tool report nikto_dast.xml -w ${FARADAY_WORKSPACE}"
             }
         }
-//         stage('Selenium') {
-//             agent {
-//                 docker {
-//                     image 'node:18-alpine'
-//                     args '--network host'
-//                     reuseNode true
-//                 }
-//             }
-//             steps {
-//                 sh 'npm install -g selenium-side-runner'
-//                 sh 'selenium-side-runner'
-//             }
-//         }
     }
     post {
         always {
